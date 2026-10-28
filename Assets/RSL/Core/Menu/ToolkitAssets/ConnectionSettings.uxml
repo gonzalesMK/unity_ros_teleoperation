@@ -5,13 +5,13 @@
         <ui:Label text="Connection Profile" name="ProfileLabel" class="h2" />
         <ui:VisualElement name="Profile" class="row" style="justify-content: space-evenly;">
             <ui:DropdownField name="ConnectionProfile" style="align-items: center; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; height: 100%; width: 50%; overflow: hidden; margin-right: 8px;" />
-            <ui:Button name="AddButton" class="icon-button" style="background-image: url(&quot;project://database/Assets/Materials/mdi/plus.svg?fileID=7388822144124034973&amp;guid=dc38c50b863592ab3b74e36e27d4c8fe&amp;type=3#plus&quot;);" />
-            <ui:Button name="DeleteButton" class="icon-button" style="background-image: url(&quot;project://database/Assets/Materials/mdi/delete.svg?fileID=7388822144124034973&amp;guid=36893462c1947ffd8ad5151e01466ecf&amp;type=3#delete&quot;);" />
+            <ui:Button name="AddButton" class="icon-button" style="background-image: url(&quot;project://database/Assets/Materials/mdi/plus.svg?fileID=3286163911610860551&amp;guid=dc38c50b863592ab3b74e36e27d4c8fe&amp;type=3#plus&quot;);" />
+            <ui:Button name="DeleteButton" class="icon-button" style="background-image: url(&quot;project://database/Assets/Materials/mdi/delete.svg?fileID=3286163911610860551&amp;guid=36893462c1947ffd8ad5151e01466ecf&amp;type=3#delete&quot;);" />
         </ui:VisualElement>
         <ui:Label text="Connected Gloves" name="GlovesLabel" class="h2" />
         <ui:VisualElement name="Haptics" class="row">
-            <ui:VisualElement name="LeftHand" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Materials/mdi/hand-back-left.svg?fileID=7388822144124034973&amp;guid=61c1fea66954cda83946fe39a0b3a639&amp;type=3#hand-back-left&quot;); -unity-background-scale-mode: scale-to-fit; height: 100%;" />
-            <ui:VisualElement name="RightHand" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Materials/mdi/hand-back-right.svg?fileID=7388822144124034973&amp;guid=2d334aef980222b6e8ec42f284b8cdf2&amp;type=3#hand-back-right&quot;); -unity-background-scale-mode: scale-to-fit; height: 100%;" />
+            <ui:VisualElement name="LeftHand" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Materials/mdi/hand-back-left.svg?fileID=3286163911610860551&amp;guid=61c1fea66954cda83946fe39a0b3a639&amp;type=3#hand-back-left&quot;); -unity-background-scale-mode: scale-to-fit; height: 100%;" />
+            <ui:VisualElement name="RightHand" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Materials/mdi/hand-back-right.svg?fileID=3286163911610860551&amp;guid=2d334aef980222b6e8ec42f284b8cdf2&amp;type=3#hand-back-right&quot;); -unity-background-scale-mode: scale-to-fit; height: 100%;" />
         </ui:VisualElement>
         <ui:Label text="Pose Publish Decimator" name="TFLabel" class="h2" />
         <ui:VisualElement name="Decimator" class="row">
