@@ -51,8 +51,8 @@ android {
     // AND assets/lib/arm64-v8a/, both bundled unconditionally, confirmed via
     // `unzip -l` on a real build). Standard `ndk.abiFilters` only prunes real
     // lib/<abi>/ JNI libraries, not assets/, so it can't reach these -- an
-    // explicit packagingOptions exclude is the only way to drop them.
-    packagingOptions {
+    // explicit packaging exclude is the only way to drop them.
+    packaging {
         exclude 'assets/lib/armeabi-v7a/**'
     }
 }
