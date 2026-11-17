@@ -47,7 +47,8 @@ namespace RSL.Core.TF
 
         void OnFrameChanged(TF2Stream stream)
         {
-            if (stream == null || _markers.ContainsKey(stream)) return;
+            // The listener outlives a scene reload; the destroyed instance must not throw inside ReceiveTF.
+            if (this == null || stream == null || _markers.ContainsKey(stream)) return;
 
             GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             marker.transform.SetParent(transform, false);

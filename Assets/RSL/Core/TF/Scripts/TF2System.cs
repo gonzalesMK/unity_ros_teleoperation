@@ -127,7 +127,9 @@ namespace UvgRos.TF2
 
                 var slash = frame_id.LastIndexOf('/');
                 var singleName = slash == -1 ? frame_id : frame_id.Substring(slash + 1);
-                if (!m_TransformTable.TryGetValue(frame_id, out tf) || tf == null)
+                // A scene reload (ModelManager.ChangeModel) destroys every stream's GameObject while this
+                // static table lives on; rebuild such a stream or every /tf message NREs in TF2Stream.Add.
+                if (!m_TransformTable.TryGetValue(frame_id, out tf) || tf == null || tf.GameObject == null)
                 {
                     tf = new TF2Stream(null, singleName, m_TFTopic);
                     m_TransformTable[frame_id] = tf;
