@@ -9,6 +9,7 @@ using Unity.Robotics.ROSTCPConnector.ROSGeometry;
 using TMPro;
 using UvgRos;
 using UvgRos.TF2;
+using Unity.XR.CoreUtils;
 
 namespace RSL.Telemetry.Headset
 {
@@ -38,6 +39,9 @@ namespace RSL.Telemetry.Headset
         public void OnPublishPoseStampedState(int state) => SetPublishPoseStamped(state == 0);
 
         private Transform root;
+        // Head and hand poses are in XR tracking space, which XRStateManager moves
+        // away from the world origin to keep the scene fixed across recenters.
+        private Transform trackingSpace;
         private string handFrameRight = "hand_right";
         private UvgRosConnection ros;
         private UvgRosPublisher<PoseStampedMsg> _posePublisher;
@@ -64,6 +68,11 @@ namespace RSL.Telemetry.Headset
 
             var rootObject = GameObject.FindWithTag("root");
             root = rootObject != null ? rootObject.transform : null;
+            XROrigin xrOrigin = FindAnyObjectByType<XROrigin>();
+            if (xrOrigin != null && xrOrigin.CameraFloorOffsetObject != null)
+                trackingSpace = xrOrigin.CameraFloorOffsetObject.transform;
+            else
+                Debug.LogWarning("HeadsetPublisher: no XROrigin camera offset found, publishing poses relative to the world origin");
             if (root == null)
             {
                 Debug.LogError("Root not found");
@@ -113,8 +122,10 @@ namespace RSL.Telemetry.Headset
             tfMsg.transforms[0].transform = new TransformMsg();
             tfMsg.transforms[0].transform.translation = new Vector3Msg();
             tfMsg.transforms[0].transform.rotation = new QuaternionMsg();
-            tfMsg.transforms[0].transform.translation = (root != null ? root.InverseTransformPoint(Vector3.zero) : Vector3.zero).To<FLU>();
-            tfMsg.transforms[0].transform.rotation = (root != null ? Quaternion.Inverse(root.rotation) : Quaternion.identity).To<FLU>();
+            Vector3 trackingPosition = trackingSpace != null ? trackingSpace.position : Vector3.zero;
+            Quaternion trackingRotation = trackingSpace != null ? trackingSpace.rotation : Quaternion.identity;
+            tfMsg.transforms[0].transform.translation = (root != null ? root.InverseTransformPoint(trackingPosition) : trackingPosition).To<FLU>();
+            tfMsg.transforms[0].transform.rotation = ((root != null ? Quaternion.Inverse(root.rotation) : Quaternion.identity) * trackingRotation).To<FLU>();
 
             // Publish the headset to unity center
             tfMsg.transforms[1] = new TransformStampedMsg();
