@@ -30,7 +30,6 @@ namespace RSL.Sensors.Camera
 
         // Off-thread JPEG decode, one worker per eye -- see JpegDecodeWorker's
         // own docstring and ImageView.OnCompressed for why this exists.
-        [SerializeField] private bool _flipDecodedJpeg = true;
         private JpegDecodeWorker _leftDecodeWorker;
         private JpegDecodeWorker _rightDecodeWorker;
 

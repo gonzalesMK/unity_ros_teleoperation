@@ -110,7 +110,7 @@ namespace RSL.Sensors.Camera
         // UvgRosJpegDecoder emits top-row-first, same as UvgRosTestClient's own
         // use of it -- flip if this material's convention needs bottom-row-
         // first (visible immediately as an upside-down image if wrong).
-        [SerializeField] private bool _flipDecodedJpeg = true;
+        [SerializeField] protected bool _flipDecodedJpeg = true;
 
         // Off-thread JPEG decode for OnCompressed -- see JpegDecodeWorker's
         // own docstring for why this exists.
