@@ -70,6 +70,8 @@ namespace RSL.Core.TF
         private Vector3 _center;
         private Vector3 _forward;
         private bool _fixedLocation = false;
+        // Whether _center/_forward hold the robot pose to keep while _fixedLocation is on.
+        private bool _anchored = false;
         private bool _notifiedMissingRobot = false;
 
         void Awake()
@@ -144,16 +146,15 @@ namespace RSL.Core.TF
 
             while (root.parent != null && findRoot)
             {
-                // Stop at the purpose-built "root" anchor (ModelManager._root)
-                // instead of climbing through it into whatever TF frame it's
-                // parented under. Climbing past it used to mean this script
-                // manually repositioned a TFSystem-owned GameObject by hand --
-                // fine if that frame never receives live updates (a true
-                // topological root), but actively fighting TFTopicState's own
-                // continuous repositioning otherwise (e.g. "odom", which
-                // usually does get live corrections). This way any frame is
-                // safe to pick as the root frame, not just the tree's actual top.
-                if (root.CompareTag("root")) break;
+                // Climb all the way to the top of the TF tree, through the
+                // "root" anchor (ModelManager._root). The anchor is a CHILD of
+                // the root-frame object, a sibling of the robot's own frames
+                // ("base" and below), so moving it moved the axis and sensor
+                // visuals but left the robot behind. The tree's top is safe
+                // to move by hand: TF only writes a frame's pose when it is
+                // some transform's child (TF2Stream.Add, StaticRemapper), and
+                // this loop runs every frame, so if a new parent appears
+                // above it (e.g. map -> odom) we just keep climbing.
                 root = root.parent;
                 _root = root;
                 Debug.Log("root frame: " + root);
@@ -162,12 +163,6 @@ namespace RSL.Core.TF
             if (_root == null)
             {
                 _root = root;
-            }
-
-            if (_fixedLocation)
-            {
-                // BaseToLocation(_center);
-                
             }
 
             if (action?.action.IsPressed() ?? false)
@@ -197,6 +192,8 @@ namespace RSL.Core.TF
                     Move(joystickXY.action.ReadValue<Vector2>());
 
                 OffsetRotate(joystickZR.action.ReadValue<Vector2>());
+                // Keep the robot where the user just put it.
+                _anchored = false;
 
                 sphere.SetActive(true);
             }
@@ -221,26 +218,41 @@ namespace RSL.Core.TF
         }
 
 
+        // LateUpdate so the hold runs after this frame's TF updates have moved the robot.
+        void LateUpdate()
+        {
+            if (!_fixedLocation || _robot == null || _root == null)
+                return;
+            if (!_anchored)
+            {
+                _center = _robot.position;
+                _forward = Vector3.ProjectOnPlane(_robot.forward, Vector3.up).normalized;
+                _anchored = _forward != Vector3.zero;
+                return;
+            }
+            HoldRobot();
+        }
+
+        // Moves the scene, not the camera, so the robot keeps its anchored heading and horizontal
+        // position while it walks. Height is left alone so the world does not bob with the base.
+        void HoldRobot()
+        {
+            Vector3 forward = Vector3.ProjectOnPlane(_robot.forward, Vector3.up);
+            if (forward != Vector3.zero)
+                _root.RotateAround(_robot.position, Vector3.up, Vector3.SignedAngle(forward, _forward, Vector3.up));
+            Vector3 offset = _center - _robot.position;
+            offset.y = 0;
+            _root.position += offset;
+        }
+
         public void SetFixedLocation(bool fixedLocation)
         {
             _fixedLocation = fixedLocation;
-            if (fixedLocation)
-            {
-                _center = _robot.position;
-                _forward = _robot.forward;
-                Camera.main.transform.SetParent(_robot);
-            }
-            else
+            _anchored = false;
+            if (!fixedLocation)
             {
                 _center = Vector3.zero;
                 _forward = Vector3.zero;
-
-                Vector3 position = Camera.main.transform.position;
-                Quaternion rotation = Camera.main.transform.rotation;
-                Camera.main.transform.SetParent(null);
-                Camera.main.transform.position = position;
-                Camera.main.transform.rotation = Quaternion.Euler(0, rotation.eulerAngles.y, 0);
-
             }
         }
 
@@ -283,6 +295,7 @@ namespace RSL.Core.TF
             UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor rayInteractor = (UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor)args.interactorObject;
             rayInteractor.TryGetHitInfo(out position, out _, out _, out _);
             _root.position = position;
+            _anchored = false;
         }
 
         public void BaseToLocation(Vector3 position)
@@ -295,7 +308,7 @@ namespace RSL.Core.TF
             {
                 _root.Rotate(0, angle, 0);
             }
-
+            _anchored = false;
         }
 
         public void ToggleLocked()

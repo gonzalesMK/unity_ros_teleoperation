@@ -2,8 +2,8 @@
 // front of the user: a sphere per known frame, a line to each frame's
 // parent, scaled down and expressed relative to a chosen pivot frame so the
 // pivot always sits upright at the HUD's local origin -- same idea as
-// PoseManager.SetFixedLocation's camera-reparent trick (see PoseManager.cs),
-// just applied to this component's own transform instead of Camera.main.
+// PoseManager.SetFixedLocation holding the robot still (see PoseManager.cs),
+// just applied to this component's own transform instead of the scene.
 //
 // Attach this to any scene GameObject (e.g. an empty child of the XR rig);
 // it builds its own child markers at runtime. Assign lineMaterial in the
